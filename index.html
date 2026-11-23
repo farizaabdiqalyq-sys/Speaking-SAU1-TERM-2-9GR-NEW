@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Speaking Wheel — Wildlife Conservation</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        /* Smooth modal animations */
+        @keyframes modalPop {
+            0% { opacity: 0; transform: scale(0.93) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-modal-pop {
+            animation: modalPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Pointer subtle bounce during tick */
+        @keyframes pointerTick {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            40% { transform: translateX(-50%) rotate(-18deg); }
+            100% { transform: translateX(-50%) rotate(0deg); }
+        }
+        .pointer-tick {
+            animation: pointerTick 0.12s ease-out;
+        }
+
+        /* Custom scrollbar for drawers/modals */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-sky-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
+                    🎯
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Wildlife Speaking Wheel
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                        ESL &amp; IELTS Part 3 Interactive Practice
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" type="button" aria-label="Toggle Sound Effects"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-semibold transition cursor-pointer">
+                    <span id="soundIcon">🔊</span>
+                    <span class="hidden sm:inline" id="soundLabel">Sound On</span>
+                </button>
+
+                <!-- View All Cards Drawer Button -->
+                <button id="openDrawerBtn" type="button"
+                    class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold shadow-sm transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                    <span>All 13 Cards</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Interactive Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
+
+        <!-- Left / Center: Spinning Wheel Container -->
+        <div class="flex flex-col items-center justify-center w-full max-w-[460px]">
+            <!-- Wheel Wrapper -->
+            <div id="wheelContainer" class="relative w-full aspect-square max-w-[430px] flex items-center justify-center select-none">
+                <!-- Outer Decorative Ring -->
+                <div class="absolute inset-0 rounded-full bg-white shadow-xl border-4 border-slate-200"></div>
+
+                <!-- Top Pointer -->
+                <div id="wheelPointer" class="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20 drop-shadow-md pointer-events-none origin-top">
+                    <svg width="40" height="46" viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 44L4 14C2.5 11.2 4.5 7 7.8 7H32.2C35.5 7 37.5 11.2 36 14L20 44Z" fill="#EF4444" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"/>
+                        <circle cx="20" cy="14" r="4" fill="#FFFFFF"/>
+                    </svg>
+                </div>
+
+                <!-- Responsive HTML5 Canvas -->
+                <canvas id="wheelCanvas" class="relative z-10 w-[94%] h-[94%] rounded-full cursor-pointer"></canvas>
+
+                <!-- Center Hub Spin Button -->
+                <button id="centerSpinBtn" type="button" aria-label="Spin the wheel"
+                    class="absolute z-20 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-extrabold text-sm sm:text-base tracking-wider uppercase shadow-lg border-4 border-white flex flex-col items-center justify-center transition transform cursor-pointer">
+                    <span>SPIN</span>
+                </button>
+            </div>
+
+            <!-- Primary Spin CTA Button below wheel -->
+            <button id="mainSpinBtn" type="button"
+                class="mt-6 w-full max-w-xs py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 active:scale-[0.98] text-white font-bold text-base sm:text-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2.5 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span>SPIN THE WHEEL</span>
+            </button>
+        </div>
+
+        <!-- Right Side: Classroom Controls & Topic Legend -->
+        <div class="w-full max-w-md flex flex-col gap-5">
+            <!-- Instructions Card -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+                <h2 class="text-base font-bold text-slate-900 mb-1.5 flex items-center gap-2">
+                    <span>🎓</span> How to Play
+                </h2>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Click <strong class="text-slate-800">Spin the Wheel</strong> to select a random wildlife speaking card. When the question pops up, answer the <strong class="text-slate-800">Comprehension Check</strong>, discuss the <strong class="text-slate-800">IELTS Part 3</strong> prompt using the <strong class="text-slate-800">Sentence Starter</strong>, and include the <strong class="text-slate-800">Key Vocabulary</strong>!
+                </p>
+            </div>
+
+            <!-- Wheel Settings & Reset Controls -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col gap-4">
+                <label class="flex items-start gap-3 cursor-pointer select-none">
+                    <input id="autoRemoveCheckbox" type="checkbox"
+                        class="mt-0.5 w-5 h-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                    <div>
+                        <span class="text-sm font-semibold text-slate-800 block">Remove card automatically after spinning</span>
+                        <span class="text-xs text-slate-500">Prevents repeating the same question in class</span>
+                    </div>
+                </label>
+
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                    <span class="text-xs sm:text-sm font-semibold text-slate-600">
+                        Active on wheel: <strong id="remainingCountBadge" class="text-slate-900">13 / 13</strong>
+                    </span>
+                    <button id="resetWheelBtn" type="button"
+                        class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">
+                        ↺ Reset Wheel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Single-Level Pop-up Question Modal -->
+    <div id="questionModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
+        <div id="modalCard" class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-modal-pop my-auto">
+            <!-- Top Colored Accent Banner -->
+            <div id="modalTopBar" class="px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-4 border-b">
+                <div class="flex items-center gap-3">
+                    <span id="modalTopicEmoji" class="text-2xl sm:text-3xl">🦌</span>
+                    <div>
+                        <span id="modalCardBadge" class="inline-block text-xs font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1">
+                            CARD 1
+                        </span>
+                        <h2 id="modalTopicTitle" class="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">
+                            Saving the Saiga
+                        </h2>
+                    </div>
+                </div>
+                <button id="modalCloseXBtn" type="button" aria-label="Close modal"
+                    class="w-9 h-9 rounded-full bg-white/80 hover:bg-white text-slate-600 hover:text-slate-900 flex items-center justify-center font-bold text-lg shadow-xs transition cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Single-Level Content Body (All Info Visible Together) -->
+            <div class="p-6 sm:p-8 space-y-5">
+
+                <!-- 1. Comprehension Check -->
+                <div class="rounded-2xl bg-slate-50 border border-slate-200/90 p-4 sm:p-5">
+                    <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>1. Comprehension Check</span>
+                    </div>
+                    <p id="modalCompQuestion" class="text-base sm:text-lg font-semibold text-slate-900 leading-snug">
+                        How does the saiga’s bulbous nose help it survive extreme temperatures?
+                    </p>
+                </div>
+
+                <!-- 2. IELTS Speaking Part 3 -->
+                <div class="rounded-2xl bg-indigo-50/70 border border-indigo-200/80 p-4 sm:p-5">
+                    <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-indigo-700 mb-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                        <span>2. IELTS Speaking Part 3</span>
+                    </div>
+                    <p id="modalIeltsQuestion" class="text-base sm:text-lg font-bold text-indigo-950 leading-snug">
+                        Why do animals need special adaptations to survive in challenging environments?
+                    </p>
+                </div>
+
+                <!-- 3. Sentence Starter -->
+                <div class="rounded-2xl bg-amber-50/90 border-2 border-amber-300/80 p-4 sm:p-5 shadow-2xs">
+                    <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-amber-800 mb-1.5">
+                        <span>💬</span>
+                        <span>3. Sentence Starter (Start Speaking Here)</span>
+                    </div>
+                    <p id="modalSentenceStarter" class="text-base sm:text-lg font-bold text-amber-950 italic leading-snug">
+                        “Animals need to adapt to their surroundings because…”
+                    </p>
+                </div>
+
+                <!-- 4. Key Vocabulary -->
+                <div>
+                    <div class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center gap-1.5">
+                        <span>🔑</span>
+                        <span>4. Key Vocabulary to Include</span>
+                    </div>
+                    <div id="modalVocabContainer" class="flex flex-wrap gap-2">
+                        <!-- Vocabulary pills injected dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Action Buttons -->
+            <div class="px-6 py-4 sm:px-8 sm:py-5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <button id="modalRemoveAndCloseBtn" type="button"
+                    class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer">
+                    <span>✓</span>
+                    <span id="modalRemoveBtnLabel">Mark Completed &amp; Close</span>
+                </button>
+
+                <div class="flex items-center gap-2.5">
+                    <button id="modalKeepCloseBtn" type="button"
+                        class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold text-sm transition cursor-pointer">
+                        Close
+                    </button>
+                    <button id="modalSpinAgainBtn" type="button"
+                        class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span>🎡</span>
+                        <span>Spin Again</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide-Over Quick Reference Drawer ("All 13 Cards") -->
+    <div id="cardsDrawerOverlay" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs justify-end">
+        <div class="w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col border-l border-slate-200">
+            <!-- Drawer Header -->
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div>
+                    <h2 class="text-lg font-extrabold text-slate-900">All 13 Speaking Cards</h2>
+                    <p class="text-xs text-slate-500">Click any card to open its full speaking prompt directly</p>
+                </div>
+                <button id="closeDrawerBtn" type="button"
+                    class="w-9 h-9 rounded-full bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold flex items-center justify-center cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Topic Filter Tabs inside Drawer -->
+            <div class="px-6 py-3 border-b border-slate-100 flex flex-wrap gap-2 bg-white">
+                <button data-filter="all" class="drawer-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white cursor-pointer">All (13)</button>
+                <button data-filter="saiga" class="drawer-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 hover:bg-amber-200 cursor-pointer">Saiga (1–5)</button>
+                <button data-filter="polar" class="drawer-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-100 text-sky-900 hover:bg-sky-200 cursor-pointer">Polar Bears (6–10)</button>
+                <button data-filter="leopard" class="drawer-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-100 text-indigo-900 hover:bg-indigo-200 cursor-pointer">Snow Leopards (11–13)</button>
+            </div>
+
+            <!-- Scrollable List of Cards -->
+            <div id="drawerCardsList" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <!-- Cards injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner (Replaces alert()) -->
+    <div id="toastBanner" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden items-center gap-2.5 px-5 py-3 rounded-2xl bg-slate-900 text-white text-sm font-semibold shadow-xl">
+        <span id="toastIcon">ℹ️</span>
+        <span id="toastMessage">Message here</span>
+    </div>
+
+    <script>
+        /**
+         * Complete dataset of 13 Wildlife ESL / IELTS Speaking Cards
+         */
+        const ALL_CARDS = [
+            // SAVING THE SAIGA (Cards 1-5)
+            {
+                id: 1,
+                topicKey: 'saiga',
+                topic: 'Saving the Saiga',
+                shortLabel: 'Card 1 • Saiga',
+                emoji: '🦌',
+                comprehension: 'How does the saiga’s bulbous nose help it survive extreme temperatures?',
+                ieltsPart3: 'Why do animals need special adaptations to survive in challenging environments?',
+                sentenceStarter: 'Animals need to adapt to their surroundings because…',
+                vocabulary: ['adaptation', 'extreme temperatures', 'survive', 'harsh conditions']
+            },
+            {
+                id: 2,
+                topicKey: 'saiga',
+                topic: 'Saving the Saiga',
+                shortLabel: 'Card 2 • Saiga',
+                emoji: '🦌',
+                comprehension: 'Why were male saigas particularly targeted by poachers?',
+                ieltsPart3: 'What measures can governments take to reduce illegal hunting?',
+                sentenceStarter: 'Governments can tackle illegal hunting by…',
+                vocabulary: ['poaching', 'highly prized', 'legal protection', 'endangered species']
+            },
+            {
+                id: 3,
+                topicKey: 'saiga',
+                topic: 'Saving the Saiga',
+                shortLabel: 'Card 3 • Saiga',
+                emoji: '🦌',
+                comprehension: 'How can railways, pipelines and fences affect the saiga’s migration?',
+                ieltsPart3: 'How can the expansion of human settlements affect wildlife?',
+                sentenceStarter: 'When human settlements expand, wild animals may…',
+                vocabulary: ['habitat loss', 'migration routes', 'physical barriers', 'human settlement']
+            },
+            {
+                id: 4,
+                topicKey: 'saiga',
+                topic: 'Saving the Saiga',
+                shortLabel: 'Card 4 • Saiga',
+                emoji: '🦌',
+                comprehension: 'What happened to the global adult saiga population during the 2015 disease outbreak?',
+                ieltsPart3: 'How can climate change make it harder to protect wildlife?',
+                sentenceStarter: 'Climate change can threaten wildlife by…',
+                vocabulary: ['disease outbreak', 'mass mortality', 'climate change', 'unpredictable']
+            },
+            {
+                id: 5,
+                topicKey: 'saiga',
+                topic: 'Saving the Saiga',
+                shortLabel: 'Card 5 • Saiga',
+                emoji: '🦌',
+                comprehension: 'What recent evidence suggests that the saiga population in Kazakhstan is recovering?',
+                ieltsPart3: 'Why is it important for governments and conservation organisations to work together?',
+                sentenceStarter: 'Cooperation is essential because conservation organisations and governments can…',
+                vocabulary: ['conservation initiative', 'restore ecosystems', 'population recovery', 'critically endangered']
+            },
+
+            // POLAR BEARS (Cards 6-10)
+            {
+                id: 6,
+                topicKey: 'polar',
+                topic: 'Polar Bears',
+                shortLabel: 'Card 6 • Polar Bear',
+                emoji: '🐻‍❄️',
+                comprehension: 'How does the polar bear’s body help it survive in the extreme cold of the Arctic?',
+                ieltsPart3: 'How do animals adapt to extreme climates?',
+                sentenceStarter: 'Animals that live in extreme climates often develop…',
+                vocabulary: ['Arctic', 'fat reserves', 'extreme conditions', 'adaptation']
+            },
+            {
+                id: 7,
+                topicKey: 'polar',
+                topic: 'Polar Bears',
+                shortLabel: 'Card 7 • Polar Bear',
+                emoji: '🐻‍❄️',
+                comprehension: 'What does the APoB gene do in polar bears, according to the passage?',
+                ieltsPart3: 'How can studying animals contribute to human medicine?',
+                sentenceStarter: 'Research on animals may benefit humans because it can help scientists…',
+                vocabulary: ['genetic structure', 'gene', 'cholesterol', 'medical research']
+            },
+            {
+                id: 8,
+                topicKey: 'polar',
+                topic: 'Polar Bears',
+                shortLabel: 'Card 8 • Polar Bear',
+                emoji: '🐻‍❄️',
+                comprehension: 'How do pregnant polar bears maintain strong bones during their time in maternity dens?',
+                ieltsPart3: 'What can scientists learn from the way animals’ bodies function?',
+                sentenceStarter: 'By studying animals, scientists may discover…',
+                vocabulary: ['bone density', 'fasting', 'calcium reserves', 'medical benefits']
+            },
+            {
+                id: 9,
+                topicKey: 'polar',
+                topic: 'Polar Bears',
+                shortLabel: 'Card 9 • Polar Bear',
+                emoji: '🐻‍❄️',
+                comprehension: 'What examples in the passage suggest that polar bears can solve problems?',
+                ieltsPart3: 'Why should people consider an animal’s intelligence and emotions when protecting it?',
+                sentenceStarter: 'People may be more willing to protect an animal if they understand that it…',
+                vocabulary: ['problem-solving abilities', 'behaviour', 'emotions', 'conservation']
+            },
+            {
+                id: 10,
+                topicKey: 'polar',
+                topic: 'Polar Bears',
+                shortLabel: 'Card 10 • Polar Bear',
+                emoji: '🐻‍❄️',
+                comprehension: 'According to the passage, what could be lost if polar bears became extinct?',
+                ieltsPart3: 'Should animals be protected only when they are useful to humans?',
+                sentenceStarter: 'Animals should be protected because…',
+                vocabulary: ['extinction', 'biodiversity', 'conservation', 'future generations']
+            },
+
+            // SNOW LEOPARDS (Cards 11-13)
+            {
+                id: 11,
+                topicKey: 'leopard',
+                topic: 'Snow Leopards',
+                shortLabel: 'Card 11 • Snow Leopard',
+                emoji: '🐆',
+                comprehension: 'What physical features help snow leopards breathe in the thin air of high mountain ranges?',
+                ieltsPart3: 'How do animals adapt to living at high altitudes?',
+                sentenceStarter: 'Animals living at high altitudes need adaptations that…',
+                vocabulary: ['high altitude', 'oxygen', 'nasal passages', 'chest cavity']
+            },
+            {
+                id: 12,
+                topicKey: 'leopard',
+                topic: 'Snow Leopards',
+                shortLabel: 'Card 12 • Snow Leopard',
+                emoji: '🐆',
+                comprehension: 'How do a snow leopard’s large paws and long tail help it move and hunt in steep, snowy terrain?',
+                ieltsPart3: 'How can an animal’s physical features help it become an effective hunter?',
+                sentenceStarter: 'A hunter’s physical features can provide an advantage by…',
+                vocabulary: ['steep terrain', 'balance', 'counterweight', 'agile prey']
+            },
+            {
+                id: 13,
+                topicKey: 'leopard',
+                topic: 'Snow Leopards',
+                shortLabel: 'Card 13 • Snow Leopard',
+                emoji: '🐆',
+                comprehension: 'Why might herders kill snow leopards, and how can community-based conservation help?',
+                ieltsPart3: 'What can communities do to reduce conflict between people and wildlife?',
+                sentenceStarter: 'Local communities can reduce conflict by…',
+                vocabulary: ['livestock', 'wild prey', 'retaliation', 'community-based conservation']
+            }
+        ];
+
+        /**
+         * Color palette per wildlife theme (alternating subtle shades for adjacent segments)
+         */
+        const TOPIC_STYLES = {
+            saiga: {
+                wheelColors: ['#F59E0B', '#D97706'], // Warm Amber / Terracotta
+                textColor: '#FFFFFF',
+                bannerBg: 'bg-amber-50 border-amber-200',
+                badgeBg: 'bg-amber-500 text-white',
+                pillBg: 'bg-amber-100 text-amber-950 border-amber-300'
+            },
+            polar: {
+                wheelColors: ['#0EA5E9', '#0284C7'], // Cool Arctic Blue
+                textColor: '#FFFFFF',
+                bannerBg: 'bg-sky-50 border-sky-200',
+                badgeBg: 'bg-sky-600 text-white',
+                pillBg: 'bg-sky-100 text-sky-950 border-sky-300'
+            },
+            leopard: {
+                wheelColors: ['#6366F1', '#4F46E5'], // Slate / Indigo
+                textColor: '#FFFFFF',
+                bannerBg: 'bg-indigo-50 border-indigo-200',
+                badgeBg: 'bg-indigo-600 text-white',
+                pillBg: 'bg-indigo-100 text-indigo-950 border-indigo-300'
+            }
+        };
+
+        // Application State
+        let activeCards = [...ALL_CARDS];
+        let currentRotation = 0; // in radians
+        let isSpinning = false;
+        let selectedCard = null;
+        let soundEnabled = true;
+        let audioCtx = null;
+        let lastTickIndex = -1;
+        let currentDrawerFilter = 'all';
+
+        // DOM Elements
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const wheelPointer = document.getElementById('wheelPointer');
+        const centerSpinBtn = document.getElementById('centerSpinBtn');
+        const mainSpinBtn = document.getElementById('mainSpinBtn');
+        const autoRemoveCheckbox = document.getElementById('autoRemoveCheckbox');
+        const resetWheelBtn = document.getElementById('resetWheelBtn');
+        const remainingCountBadge = document.getElementById('remainingCountBadge');
+
+        // Modal Elements
+        const questionModal = document.getElementById('questionModal');
+        const modalTopBar = document.getElementById('modalTopBar');
+        const modalTopicEmoji = document.getElementById('modalTopicEmoji');
+        const modalCardBadge = document.getElementById('modalCardBadge');
+        const modalTopicTitle = document.getElementById('modalTopicTitle');
+        const modalCompQuestion = document.getElementById('modalCompQuestion');
+        const modalIeltsQuestion = document.getElementById('modalIeltsQuestion');
+        const modalSentenceStarter = document.getElementById('modalSentenceStarter');
+        const modalVocabContainer = document.getElementById('modalVocabContainer');
+        const modalCloseXBtn = document.getElementById('modalCloseXBtn');
+        const modalKeepCloseBtn = document.getElementById('modalKeepCloseBtn');
+        const modalRemoveAndCloseBtn = document.getElementById('modalRemoveAndCloseBtn');
+        const modalRemoveBtnLabel = document.getElementById('modalRemoveBtnLabel');
+        const modalSpinAgainBtn = document.getElementById('modalSpinAgainBtn');
+
+        // Drawer & Sound Elements
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        const soundIcon = document.getElementById('soundIcon');
+        const soundLabel = document.getElementById('soundLabel');
+        const openDrawerBtn = document.getElementById('openDrawerBtn');
+        const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+        const cardsDrawerOverlay = document.getElementById('cardsDrawerOverlay');
+        const drawerCardsList = document.getElementById('drawerCardsList');
+        const filterBtns = document.querySelectorAll('.drawer-filter-btn');
+
+        /**
+         * Web Audio API Sound Effects (Tick & Celebration Chime)
+         */
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTickSound() {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.035);
+
+                gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.035);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.04);
+            } catch (e) {
+                // Ignore audio errors on restricted browsers
+            }
+        }
+
+        function playWinSound() {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    const startTime = audioCtx.currentTime + idx * 0.07;
+                    osc.frequency.setValueAtTime(freq, startTime);
+
+                    gain.gain.setValueAtTime(0.12, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + 0.36);
+                });
+            } catch (e) {
+                // Ignore audio errors
+            }
+        }
+
+        /**
+         * Toast notification helper (non-blocking replacement for alert)
+         */
+        let toastTimeout = null;
+        function showToast(message, icon = 'ℹ️') {
+            const toast = document.getElementById('toastBanner');
+            document.getElementById('toastMessage').textContent = message;
+            document.getElementById('toastIcon').textContent = icon;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 3000);
+        }
+
+        /**
+         * Resize & Draw High-DPI Spinning Wheel on HTML5 Canvas
+         */
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const size = Math.min(container.clientWidth, container.clientHeight) * 0.94;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            drawWheel();
+        }
+
+        function drawWheel() {
+            const dpr = window.devicePixelRatio || 1;
+            const size = canvas.width / dpr;
+            const center = size / 2;
+            const radius = center - 4;
+
+            ctx.clearRect(0, 0, size, size);
+
+            if (activeCards.length === 0) {
+                // Empty state circle
+                ctx.beginPath();
+                ctx.arc(center, center, radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fill();
+                ctx.fillStyle = '#475569';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('All cards completed!', center, center - 48);
+                return;
+            }
+
+            const numSegments = activeCards.length;
+            const arcAngle = (Math.PI * 2) / numSegments;
+
+            activeCards.forEach((card, index) => {
+                const startAngle = currentRotation + index * arcAngle;
+                const endAngle = startAngle + arcAngle;
+
+                // Determine alternating color within topic
+                const style = TOPIC_STYLES[card.topicKey];
+                const segmentColor = style.wheelColors[index % style.wheelColors.length];
+
+                // Draw Segment Wedge
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = segmentColor;
+                ctx.fill();
+
+                // Crisp white divider border
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+
+                // Draw Segment Text
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(startAngle + arcAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = style.textColor;
+
+                // Adaptive font size based on wheel diameter & remaining segments
+                const baseFontSize = size < 320 ? 11 : (numSegments <= 6 ? 15 : 13);
+                ctx.font = `700 ${baseFontSize}px Inter, sans-serif`;
+
+                // Draw Card Number & Short Topic Name
+                const labelText = numSegments === 1
+                    ? `CARD ${card.id} — ${card.topic}`
+                    : `CARD ${card.id}`;
+
+                ctx.fillText(labelText, radius - 18, numSegments <= 8 ? -7 : 0);
+
+                if (numSegments > 1 && numSegments <= 13) {
+                    const subFontSize = size < 320 ? 9 : 10.5;
+                    ctx.font = `500 ${subFontSize}px Inter, sans-serif`;
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+                    const topicShort = card.topicKey === 'saiga' ? 'Saiga'
+                        : (card.topicKey === 'polar' ? 'Polar Bear' : 'Snow Leopard');
+                    if (numSegments <= 8) {
+                        ctx.fillText(topicShort, radius - 18, 9);
+                    }
+                }
+
+                ctx.restore();
+            });
+
+            // Outer subtle inner shadow ring
+            ctx.beginPath();
+            ctx.arc(center, center, radius, 0, Math.PI * 2);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'rgba(15, 23, 42, 0.08)';
+            ctx.stroke();
+        }
+
+        /**
+         * Determine which card is currently under the top pointer (-Math.PI / 2)
+         */
+        function getSegmentIndexAtPointer(rotation) {
+            if (activeCards.length === 0) return -1;
+            const numSegments = activeCards.length;
+            const arcAngle = (Math.PI * 2) / numSegments;
+            // Top pointer is at 12 o'clock = -PI/2 (or 3*PI/2)
+            const pointerAngle = (Math.PI * 1.5);
+            const normalizedRotation = ((rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+            const relativeAngle = ((pointerAngle - normalizedRotation) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+            return Math.floor(relativeAngle / arcAngle) % numSegments;
+        }
+
+        /**
+         * Trigger Spin Animation with Smooth Cubic Ease-Out Physics
+         */
+        function spinWheel() {
+            if (isSpinning) return;
+
+            if (activeCards.length === 0) {
+                showToast('All 13 cards have been completed! Click "Reset Wheel" to play again.', '🎉');
+                return;
+            }
+
+            initAudio();
+            isSpinning = true;
+            setSpinButtonsDisabled(true);
+
+            // Random spin between 5 and 8 full rotations + random angle offset
+            const extraSpins = (5 + Math.random() * 3) * Math.PI * 2;
+            const randomOffset = Math.random() * Math.PI * 2;
+            const startRotation = currentRotation;
+            const targetRotation = startRotation + extraSpins + randomOffset;
+            const duration = 3800; // 3.8 seconds smooth spin
+            const startTime = performance.now();
+
+            function animate(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Quintic ease-out for natural friction deceleration
+                const easeOut = 1 - Math.pow(1 - progress, 4);
+                currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+
+                drawWheel();
+
+                // Check pointer tick across segment boundaries
+                const currentIdx = getSegmentIndexAtPointer(currentRotation);
+                if (currentIdx !== lastTickIndex && currentIdx !== -1) {
+                    lastTickIndex = currentIdx;
+                    playTickSound();
+                    wheelPointer.classList.remove('pointer-tick');
+                    void wheelPointer.offsetWidth; // trigger reflow
+                    wheelPointer.classList.add('pointer-tick');
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    setSpinButtonsDisabled(false);
+                    const winningIdx = getSegmentIndexAtPointer(currentRotation);
+                    const winningCard = activeCards[winningIdx];
+                    playWinSound();
+
+                    setTimeout(() => {
+                        openCardModal(winningCard, true);
+                    }, 300);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function setSpinButtonsDisabled(disabled) {
+            centerSpinBtn.disabled = disabled;
+            mainSpinBtn.disabled = disabled;
+            if (disabled) {
+                mainSpinBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                centerSpinBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            } else {
+                mainSpinBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                centerSpinBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+            }
+        }
+
+        /**
+         * Open Single-Level Question Pop-up Modal
+         */
+        function openCardModal(card, fromSpin = false) {
+            if (!card) return;
+            selectedCard = card;
+
+            const style = TOPIC_STYLES[card.topicKey];
+
+            // Style header banner
+            modalTopBar.className = `px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-4 border-b ${style.bannerBg}`;
+            modalCardBadge.className = `inline-block text-xs font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1 ${style.badgeBg}`;
+            modalCardBadge.textContent = `CARD ${card.id} OF 13`;
+            modalTopicEmoji.textContent = card.emoji;
+            modalTopicTitle.textContent = card.topic;
+
+            // Populate all 4 single-level sections
+            modalCompQuestion.textContent = card.comprehension;
+            modalIeltsQuestion.textContent = card.ieltsPart3;
+            modalSentenceStarter.textContent = `“${card.sentenceStarter}”`;
+
+            // Populate Vocabulary Pills
+            modalVocabContainer.innerHTML = '';
+            card.vocabulary.forEach(word => {
+                const pill = document.createElement('span');
+                pill.className = `px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold border ${style.pillBg}`;
+                pill.textContent = word;
+                modalVocabContainer.appendChild(pill);
+            });
+
+            // Check if card is still on wheel to update Remove button state
+            const isStillOnWheel = activeCards.some(c => c.id === card.id);
+            if (isStillOnWheel) {
+                modalRemoveAndCloseBtn.classList.remove('hidden');
+                modalRemoveBtnLabel.textContent = 'Remove from Wheel & Close';
+            } else {
+                modalRemoveAndCloseBtn.classList.add('hidden');
+            }
+
+            // If auto-remove checkbox is checked and modal opened from spin, remove immediately
+            if (fromSpin && autoRemoveCheckbox.checked && isStillOnWheel) {
+                removeCardFromWheel(card.id, false);
+                modalRemoveAndCloseBtn.classList.add('hidden');
+                showToast(`Card ${card.id} automatically removed from the wheel.`, '✓');
+            }
+
+            questionModal.classList.remove('hidden');
+            questionModal.classList.add('flex');
+        }
+
+        function closeCardModal() {
+            questionModal.classList.add('hidden');
+            questionModal.classList.remove('flex');
+        }
+
+        /**
+         * Remove a specific card from the active wheel
+         */
+        function removeCardFromWheel(cardId, notify = true) {
+            const initialLen = activeCards.length;
+            activeCards = activeCards.filter(c => c.id !== cardId);
+            if (activeCards.length < initialLen) {
+                updateCounters();
+                drawWheel();
+                renderDrawerCards();
+                if (notify) {
+                    showToast(`Card ${cardId} removed. ${activeCards.length} cards remaining.`, '✓');
+                }
+            }
+        }
+
+        /**
+         * Reset Wheel back to all 13 cards
+         */
+        function resetWheel() {
+            if (isSpinning) return;
+            activeCards = [...ALL_CARDS];
+            currentRotation = 0;
+            lastTickIndex = -1;
+            updateCounters();
+            drawWheel();
+            renderDrawerCards();
+            showToast('All 13 cards restored to the wheel!', '↺');
+        }
+
+        /**
+         * Update topic counters and active badge
+         */
+        function updateCounters() {
+            remainingCountBadge.textContent = `${activeCards.length} / 13`;
+        }
+
+        /**
+         * Render cards inside the "All 13 Cards" Quick Reference Drawer
+         */
+        function renderDrawerCards() {
+            drawerCardsList.innerHTML = '';
+
+            const filtered = currentDrawerFilter === 'all'
+                ? ALL_CARDS
+                : ALL_CARDS.filter(c => c.topicKey === currentDrawerFilter);
+
+            filtered.forEach(card => {
+                const isOnWheel = activeCards.some(c => c.id === card.id);
+                const style = TOPIC_STYLES[card.topicKey];
+
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-2xl border transition cursor-pointer hover:shadow-md ${
+                    isOnWheel ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-200/70 opacity-70'
+                }`;
+
+                item.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-extrabold uppercase px-2.5 py-0.5 rounded-full ${style.badgeBg}">
+                                Card ${card.id}
+                            </span>
+                            <span class="text-xs font-bold text-slate-600">${card.emoji} ${card.topic}</span>
+                        </div>
+                        <span class="text-xs font-semibold ${isOnWheel ? 'text-emerald-600' : 'text-slate-400'}">
+                            ${isOnWheel ? '● On Wheel' : '✓ Completed'}
+                        </span>
+                    </div>
+                    <p class="text-sm font-bold text-slate-900 mb-1">${card.ieltsPart3}</p>
+                    <p class="text-xs text-slate-500 italic">Starter: “${card.sentenceStarter}”</p>
+                `;
+
+                item.addEventListener('click', () => {
+                    closeDrawer();
+                    openCardModal(card, false);
+                });
+
+                drawerCardsList.appendChild(item);
+            });
+        }
+
+        function openDrawer() {
+            renderDrawerCards();
+            cardsDrawerOverlay.classList.remove('hidden');
+            cardsDrawerOverlay.classList.add('flex');
+        }
+
+        function closeDrawer() {
+            cardsDrawerOverlay.classList.add('hidden');
+            cardsDrawerOverlay.classList.remove('flex');
+        }
+
+        // Event Listeners
+        centerSpinBtn.addEventListener('click', spinWheel);
+        mainSpinBtn.addEventListener('click', spinWheel);
+        canvas.addEventListener('click', spinWheel);
+        resetWheelBtn.addEventListener('click', resetWheel);
+
+        // Modal Buttons
+        modalCloseXBtn.addEventListener('click', closeCardModal);
+        modalKeepCloseBtn.addEventListener('click', closeCardModal);
+
+        modalRemoveAndCloseBtn.addEventListener('click', () => {
+            if (selectedCard) {
+                removeCardFromWheel(selectedCard.id, true);
+            }
+            closeCardModal();
+        });
+
+        modalSpinAgainBtn.addEventListener('click', () => {
+            closeCardModal();
+            setTimeout(spinWheel, 150);
+        });
+
+        // Close modal on backdrop click
+        questionModal.addEventListener('click', (e) => {
+            if (e.target === questionModal) {
+                closeCardModal();
+            }
+        });
+
+        // Sound Toggle
+        soundToggleBtn.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
+            soundLabel.textContent = soundEnabled ? 'Sound On' : 'Muted';
+            if (soundEnabled) playTickSound();
+        });
+
+        // Drawer Events
+        openDrawerBtn.addEventListener('click', openDrawer);
+        closeDrawerBtn.addEventListener('click', closeDrawer);
+        cardsDrawerOverlay.addEventListener('click', (e) => {
+            if (e.target === cardsDrawerOverlay) closeDrawer();
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentDrawerFilter = btn.dataset.filter;
+                filterBtns.forEach(b => {
+                    b.classList.remove('ring-2', 'ring-slate-900');
+                });
+                btn.classList.add('ring-2', 'ring-slate-900');
+                renderDrawerCards();
+            });
+        });
+
+        // Keyboard Escape support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeCardModal();
+                closeDrawer();
+            }
+        });
+
+        // Initialize on Load & Resize
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('load', () => {
+            updateCounters();
+            resizeCanvas();
+        });
+    </script>
+</body>
+</html>
